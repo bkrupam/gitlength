@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Check, Copy, ExternalLink, Loader2, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,12 +28,44 @@ interface IdeaModalProps {
   onCopy: () => void;
 }
 
+function SectionHeading({ children }: { children: ReactNode }) {
+  return (
+    <h4 className="type-subheading font-semibold tracking-[var(--tracking-subheading)] text-midnight-ink">
+      {children}
+    </h4>
+  );
+}
+
+function SectionBody({ children }: { children: ReactNode }) {
+  return <p className="type-body text-charcoal-whisper">{children}</p>;
+}
+
 function Section({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col stack-gap">
-      <h4 className="type-body-sm font-semibold text-midnight-ink">{label}</h4>
-      <p className="text-body text-charcoal-whisper">{value}</p>
-    </div>
+    <section className="flex flex-col gap-[var(--spacing-8)]">
+      <SectionHeading>{label}</SectionHeading>
+      <SectionBody>{value}</SectionBody>
+    </section>
+  );
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="flex flex-col gap-[var(--spacing-12)]">
+      {items.map((item) => (
+        <li
+          key={item}
+          className="flex items-start gap-[var(--spacing-12)] type-body text-charcoal-whisper"
+        >
+          <Check
+            className="icon-inline mt-0.5 text-invoice-blue"
+            strokeWidth={2.5}
+            aria-hidden
+          />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -53,7 +86,7 @@ function SourceAttribution({ repo }: { repo: TrendingRepo }) {
         </span>
       )}
       {repo.language && <Badge>{repo.language}</Badge>}
-      <ExternalLink className="h-3.5 w-3.5 text-graphite-mute" />
+      <ExternalLink className="icon-inline text-graphite-mute" strokeWidth={2} aria-hidden />
     </a>
   );
 }
@@ -88,8 +121,8 @@ export function IdeaModal({
             </>
           ) : idea ? (
             <>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <span className="type-body-sm text-graphite-mute">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                <span className="type-label uppercase tracking-[0.06em] text-graphite-mute">
                   {mode === "hybrid" ? "Based on" : "Inspired by"}
                 </span>
                 {sourceRepos.map((repo) => (
@@ -106,11 +139,11 @@ export function IdeaModal({
           ) : null}
         </DialogHeader>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-[var(--card-padding)] pb-[var(--spacing-16)]">
+        <div className="min-h-0 flex-1 overflow-y-auto px-[var(--card-padding)] pb-[var(--spacing-24)]">
           {loading && (
             <div className="flex flex-col items-center gap-[var(--spacing-24)] py-[var(--spacing-32)]">
-              <Loader2 className="h-8 w-8 animate-spin text-graphite-mute" />
-              <div className="flex w-full flex-col stack-gap">
+              <Loader2 className="icon-display animate-spin text-graphite-mute" strokeWidth={2} />
+              <div className="flex w-full flex-col gap-[var(--element-gap)]">
                 <Skeleton className="h-16 w-full rounded-[var(--radius-cards)]" />
                 <Skeleton className="h-16 w-full rounded-[var(--radius-cards)]" />
                 <Skeleton className="h-24 w-full rounded-[var(--radius-cards)]" />
@@ -121,65 +154,41 @@ export function IdeaModal({
           {!loading && error && (
             <div className="py-[var(--spacing-32)] text-center">
               <Button onClick={onRegenerate}>
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw strokeWidth={2} />
                 Try again
               </Button>
             </div>
           )}
 
           {!loading && idea && (
-            <div className="flex flex-col gap-[var(--spacing-24)]">
+            <div className="flex flex-col gap-[var(--spacing-32)]">
               <Section label="Target Audience" value={idea.targetAudience} />
               <Section label="Core Problem" value={idea.coreProblem} />
               <Section label="Micro-SaaS Twist" value={idea.microSaasTwist} />
 
-              <div className="flex flex-col stack-gap">
-                <h4 className="type-body-sm font-semibold text-midnight-ink">
-                  MVP Features
-                </h4>
-                <ul className="flex flex-col stack-gap">
-                  {idea.mvpFeatures.map((feature) => (
-                    <li
-                      key={feature}
-                      className="flex items-start gap-[var(--element-gap)] text-body text-charcoal-whisper"
-                    >
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-invoice-blue" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <section className="flex flex-col gap-[var(--spacing-12)]">
+                <SectionHeading>MVP Features</SectionHeading>
+                <BulletList items={idea.mvpFeatures} />
+              </section>
 
               <Section label="Revenue Model" value={idea.revenueModel} />
               <Section label="Differentiator" value={idea.differentiator} />
 
-              <div className="flex flex-col stack-gap">
-                <h4 className="type-body-sm font-semibold text-midnight-ink">
-                  Go-to-Market
-                </h4>
-                <ul className="flex flex-col stack-gap">
-                  {idea.goToMarket.map((channel) => (
-                    <li
-                      key={channel}
-                      className="flex items-start gap-[var(--element-gap)] text-body text-charcoal-whisper"
-                    >
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-invoice-blue" />
-                      <span>{channel}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <section className="flex flex-col gap-[var(--spacing-12)]">
+                <SectionHeading>Go-to-Market</SectionHeading>
+                <BulletList items={idea.goToMarket} />
+              </section>
             </div>
           )}
         </div>
 
         <DialogFooter>
           <Button variant="ghost" onClick={onRegenerate} disabled={loading}>
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw strokeWidth={2} />
             Regenerate
           </Button>
           <Button onClick={onCopy} disabled={!idea || loading}>
-            <Copy className="h-4 w-4" />
+            <Copy strokeWidth={2} />
             {copied ? "Copied!" : "Copy as Markdown"}
           </Button>
         </DialogFooter>

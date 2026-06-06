@@ -22,7 +22,7 @@ const SelectTrigger = React.forwardRef<
   >
     <span className="min-w-0 truncate text-left">{children}</span>
     <ChevronDown
-      className="size-6 shrink-0 text-midnight-ink"
+      className="icon-control text-midnight-ink"
       strokeWidth={2}
       aria-hidden
     />
@@ -68,7 +68,7 @@ const SelectItem = React.forwardRef<
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     <span className="absolute right-3 flex items-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4 text-invoice-blue" strokeWidth={1.75} />
+        <Check className="icon-inline text-invoice-blue" strokeWidth={2.5} />
       </SelectPrimitive.ItemIndicator>
     </span>
   </SelectPrimitive.Item>
