@@ -1,0 +1,60 @@
+---
+description: Acctual design system — always apply for UI work in Gitlength
+alwaysApply: true
+---
+
+# Design System (Acctual)
+
+Before producing any UI code, restyling work, or visual change in this repo, apply the Acctual design system from `DS/DESIGN (1).md`. Use the CSS variables defined in `app/globals.css` (`--color-*`, `--text-*`, `--radius-*`, `--shadow-*`); never hard-code hex values, generic gray shadows, or sharp corners.
+
+## Quick Color Reference
+- text (primary): `#0f0f0f` → `--color-midnight-ink`
+- text (secondary/supporting): `#1e1e1e` → `--color-charcoal-whisper`
+- text (muted/meta): `#8d8d8d` → `--color-graphite-mute`
+- background (canvas): `#f7fafc` → `--color-cool-mist`
+- background (cards): `#ffffff` → `--color-paper-white`
+- border/hairline: `#afb0b1` → `--color-stone-edge`
+- accent (small punctuation only): `#0098f2` → `--color-invoice-blue` (checkmarks, eyebrow tags, inline links)
+- primary CTA fill: `#0d111b` → `--color-onyx-button`
+- decorative avatars: `#f200ca` → `--color-magenta-tile`, `#6d56fc` → `--color-iris-glow`
+- pastel washes (mockup backdrops only): `--color-wash-sky`, `--color-wash-lilac`, `--color-wash-petal`
+
+## Typography
+- Font: Open Runde via Inter substitute (`--font-open-runde`), weights 400/500/600
+- Signature accent: Caveat (`--font-caveat`) — testimonial attributions only, never functional UI
+- Body: 16px weight 400, line-height 1.5
+- Meta: 14px weight 400–500 Graphite Mute
+- Headings: weight 600 Midnight Ink, negative letter-spacing at larger sizes
+- Display/hero: 64px weight 600, tracking -2.4px
+
+## Radii
+- Cards: 20px (`--radius-cards`)
+- Images/illustrations: 32px (`--radius-images`)
+- Inputs: 12px (`--radius-inputs`)
+- Buttons/pills/tags/chips: 100px (`--radius-buttons`, `--radius-tags`)
+
+## Shadows (subtle black only)
+- Cards: `rgba(0,0,0,0.06) 0 2.5px 2.5px` → `--shadow-subtle`
+- Primary CTA ring: → `--shadow-subtle-2`
+
+## Layout
+- Page max-width: 1200px
+- Section gap: 64px
+- Card padding: 24px
+- Element gap: 16px
+
+## Do
+- Keep the UI 99% achromatic — Invoice Blue, Magenta Tile, and Iris Glow appear only as small functional dots
+- Use Midnight Ink for primary text — never pure black
+- Primary CTA is always Onyx Button pill with `--shadow-subtle-2` — no second filled button color
+- Use 20px radius on cards, 100px on buttons, 32px on masked images
+- Separate sections with whitespace and alternating Cool Mist bands, not heavy borders
+- Use Stone Edge for hairline dividers only
+
+## Don't
+- Don't use Invoice Blue, Magenta Tile, or Iris Glow as large fills or section backgrounds
+- Don't add hover-lift shadows or colored glows — cards use `--shadow-subtle` only
+- Don't use `#000000` for text
+- Don't use sharp corners (0–4px) on cards or buttons
+- Don't use Signal Blue / cord.com tokens (legacy — removed)
+- Don't use Caveat in buttons, links, or labels

@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colors — Acctual DS (see DS/DESIGN (1).md) */
+  --color-paper-white: #ffffff;
+  --color-cool-mist: #f7fafc;
+  --color-stone-edge: #afb0b1;
+  --color-graphite-mute: #8d8d8d;
+  --color-charcoal-whisper: #1e1e1e;
+  --color-midnight-ink: #0f0f0f;
+  --color-onyx-button: #0d111b;
+  --color-tinted-shadow: #242628;
+  --color-invoice-blue: #0098f2;
+  --color-magenta-tile: #f200ca;
+  --color-iris-glow: #6d56fc;
+  --color-wash-sky: #cfeafa;
+  --color-wash-lilac: #e1e0fc;
+  --color-wash-petal: #f6d2f4;
+
+  /* Typography */
+  --font-open-runde: var(--font-open-runde-loaded), ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-caveat: var(--font-caveat-loaded), ui-sans-serif, system-ui, sans-serif;
+  --font-inter: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --text-caption: 12px;
+  --leading-caption: 1.2;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.43;
+  --text-body: 16px;
+  --leading-body: 1.5;
+  --text-subheading: 20px;
+  --leading-subheading: 1.4;
+  --tracking-subheading: -0.24px;
+  --text-heading: 32px;
+  --leading-heading: 1.25;
+  --tracking-heading: -0.64px;
+  --text-heading-lg: 40px;
+  --leading-heading-lg: 1.21;
+  --tracking-heading-lg: -1.2px;
+  --text-display: 64px;
+  --leading-display: 1.13;
+  --tracking-display: -2.4px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* Spacing */
+  --spacing-4: 4px;
+  --spacing-8: 8px;
+  --spacing-12: 12px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-48: 48px;
+  --spacing-64: 64px;
+  --spacing-80: 80px;
+  --spacing-96: 96px;
+  --spacing-100: 100px;
+
+  /* Layout */
+  --page-max-width: 1200px;
+  --section-gap: 64px;
+  --card-padding: 24px;
+  --element-gap: 16px;
+  --grid-gap: 24px;
+
+  /* Border radius */
+  --radius-tags: 1250px;
+  --radius-cards: 20px;
+  --radius-images: 32px;
+  --radius-inputs: 12px;
+  --radius-buttons: 100px;
+
+  /* Shadows */
+  --shadow-subtle: rgba(0, 0, 0, 0.06) 0px 2.5px 2.5px 0px;
+  --shadow-subtle-2: rgb(36, 38, 40) 0px 0px 0px 1px,
+    rgba(27, 28, 29, 0.48) 0px 1px 2px 0px;
+}
+
+@layer base {
+  body {
+    @apply bg-cool-mist font-open-runde text-midnight-ink antialiased;
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+  }
+}
+
+@layer utilities {
+  .page-container {
+    width: 100%;
+    max-width: var(--page-max-width);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-24);
+    padding-right: var(--spacing-24);
+  }
+
+  .section-gap {
+    margin-top: var(--section-gap);
+  }
+
+  .stack-gap {
+    gap: var(--element-gap);
+  }
+
+  .grid-gap {
+    gap: var(--grid-gap);
+  }
+
+  .card-surface {
+    border-radius: var(--radius-cards);
+    background-color: var(--color-paper-white);
+    padding: var(--card-padding);
+    box-shadow: var(--shadow-subtle);
+  }
+
+  .type-display {
+    font-size: clamp(40px, 6vw, var(--text-display));
+    line-height: var(--leading-display);
+    letter-spacing: var(--tracking-display);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .type-heading-lg {
+    font-size: var(--text-heading-lg);
+    line-height: var(--leading-heading-lg);
+    letter-spacing: var(--tracking-heading-lg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .type-heading {
+    font-size: var(--text-heading);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .type-wordmark {
+    font-size: var(--text-subheading);
+    line-height: var(--leading-subheading);
+    letter-spacing: var(--tracking-subheading);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .type-subheading {
+    font-size: var(--text-subheading);
+    line-height: var(--leading-subheading);
+    letter-spacing: var(--tracking-subheading);
+    font-weight: var(--font-weight-regular);
+  }
+
+  .type-body-sm {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-body-sm);
+    font-weight: var(--font-weight-regular);
+  }
+
+  .type-label {
+    font-size: var(--text-caption);
+    line-height: var(--leading-caption);
+    font-weight: var(--font-weight-medium);
+  }
+
+  .type-eyebrow {
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-body-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-invoice-blue);
+  }
+
+  .type-signature {
+    font-family: var(--font-caveat);
+    font-size: var(--text-body);
+    line-height: 1.33;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-graphite-mute);
+  }
+
+  /* DS field controls — inputs & selects (12px radius, 24px left pad, subtle shadow) */
+  .field-control {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    gap: var(--spacing-12);
+    border-radius: var(--radius-inputs);
+    background-color: var(--color-paper-white);
+    padding: var(--spacing-12) var(--spacing-16) var(--spacing-12)
+      var(--spacing-24);
+    box-shadow: var(--shadow-subtle);
+    font-size: var(--text-body-sm);
+    line-height: var(--leading-body-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-midnight-ink);
+  }
+
+  .field-control-input {
+    min-width: 0;
+    flex: 1;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    outline: none;
+  }
+
+  .field-control-input::placeholder {
+    color: var(--color-graphite-mute);
+    font-weight: var(--font-weight-regular);
+  }
+}
