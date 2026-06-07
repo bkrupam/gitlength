@@ -46,7 +46,7 @@ export function PasteRepoForm({
         {isSubmitting ? (
           <Loader2 className="animate-spin" strokeWidth={2} />
         ) : (
-          "Cook idea"
+          "Get tool idea"
         )}
       </Button>
     </form>

@@ -27,7 +27,7 @@ export function NavHeader({ combineMode, onCombineModeChange }: NavHeaderProps) 
             onClick={() => onCombineModeChange(!combineMode)}
             className="type-body-sm font-medium text-midnight-ink transition-colors hover:text-charcoal-whisper"
           >
-            {combineMode ? "Exit combine mode" : "Combine repos"}
+            {combineMode ? "Exit mix mode" : "Mix repos"}
           </button>
         </nav>
 
@@ -39,7 +39,7 @@ export function NavHeader({ combineMode, onCombineModeChange }: NavHeaderProps) 
             className="md:hidden"
             onClick={() => onCombineModeChange(!combineMode)}
           >
-            {combineMode ? "Combining" : "Combine"}
+            {combineMode ? "Mixing" : "Mix"}
           </Button>
           <Button
             type="button"

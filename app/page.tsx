@@ -1,29 +1,35 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { FetchRepoModal } from "@/components/fetch-repo-modal";
 import { PasteRepoForm } from "@/components/paste-repo-form";
-import { SourceModeTabs, type SourceMode } from "@/components/source-mode-tabs";
+import {
+  SourceModeTabs,
+  sourceModeContentTransition,
+  type SourceMode,
+} from "@/components/source-mode-tabs";
 import { TrendingControls } from "@/components/trending-controls";
+import { CardIdeaFlow } from "@/components/card-idea-flow";
 import { IdeaModal } from "@/components/idea-modal";
 import { NavHeader } from "@/components/nav-header";
-import { RepoCard } from "@/components/repo-card";
+import { RepoCard, type CardRect } from "@/components/repo-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ideaToMarkdown } from "@/lib/idea-markdown";
 import { parseGithubUrl } from "@/lib/parse-github-url";
-import type { MicroSaasIdea, TrendingRepo, TrendingSince } from "@/lib/types";
+import type { ToolIdea, TrendingRepo, TrendingSince } from "@/lib/types";
 
 const HERO_COPY: Record<SourceMode, { title: string; subtitle: string }> = {
   trending: {
-    title: "Turn trending repos into micro-SaaS ideas",
+    title: "Turn trending repos into tools you can build",
     subtitle:
-      "Browse what's hot on GitHub today, click any repo, and get a revenue-ready product concept in seconds.",
+      "Browse what's hot on GitHub, click any repo, and get a practical tool concept — plus ideas for what extra you could add.",
   },
   paste: {
-    title: "Turn any GitHub repo into a micro-SaaS idea",
+    title: "Turn any GitHub repo into a tool idea",
     subtitle:
-      "Paste a repository URL and we'll read the source to cook a revenue-ready product concept.",
+      "Paste a repository URL and we'll read the source to sketch something useful you could build.",
   },
 };
 
@@ -43,10 +49,16 @@ export default function HomePage() {
   const [fetchLoading, setFetchLoading] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetchRepoLabel, setFetchRepoLabel] = useState<string | undefined>();
+  const [flowCard, setFlowCard] = useState<{
+    repo: TrendingRepo;
+    index: number;
+    rect: CardRect;
+  } | null>(null);
+  const [flowMounted, setFlowMounted] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [ideaLoading, setIdeaLoading] = useState(false);
   const [ideaError, setIdeaError] = useState<string | null>(null);
-  const [idea, setIdea] = useState<MicroSaasIdea | null>(null);
+  const [idea, setIdea] = useState<ToolIdea | null>(null);
   const [ideaRepos, setIdeaRepos] = useState<TrendingRepo[]>([]);
   const [ideaMode, setIdeaMode] = useState<"single" | "hybrid">("single");
   const [copied, setCopied] = useState(false);
@@ -90,9 +102,8 @@ export default function HomePage() {
     );
   }, [repos, search]);
 
-  const generateIdea = useCallback(
+  const fetchIdea = useCallback(
     async (targetRepos: TrendingRepo[], mode: "single" | "hybrid") => {
-      setModalOpen(true);
       setIdeaLoading(true);
       setIdeaError(null);
       setIdea(null);
@@ -126,6 +137,14 @@ export default function HomePage() {
     []
   );
 
+  const generateIdea = useCallback(
+    async (targetRepos: TrendingRepo[], mode: "single" | "hybrid") => {
+      setModalOpen(true);
+      await fetchIdea(targetRepos, mode);
+    },
+    [fetchIdea]
+  );
+
   const handleGithubUrlSubmit = useCallback(async () => {
     const trimmed = githubUrl.trim();
     if (!trimmed) return;
@@ -157,14 +176,19 @@ export default function HomePage() {
       setFetchModalOpen(false);
       setFetchLoading(false);
       setGithubUrl("");
-      await generateIdea([data.repo], "single");
+      setModalOpen(true);
+      await fetchIdea([data.repo], "single");
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : "Failed to fetch repository");
       setFetchLoading(false);
     }
-  }, [githubUrl, generateIdea]);
+  }, [githubUrl, fetchIdea]);
 
-  const handleRepoClick = (repo: TrendingRepo) => {
+  const handleRepoClick = (
+    repo: TrendingRepo,
+    index: number,
+    rect: CardRect
+  ) => {
     if (combineMode) {
       setSelected((prev) => {
         const exists = prev.find(
@@ -176,7 +200,22 @@ export default function HomePage() {
       });
       return;
     }
-    generateIdea([repo], "single");
+    setFlowCard({ repo, index, rect });
+    setFlowMounted(true);
+    void fetchIdea([repo], "single");
+  };
+
+  const handleFlowOpenChange = (open: boolean) => {
+    if (!open) setFlowMounted(false);
+  };
+
+  const handleFlowExitComplete = () => {
+    setFlowCard(null);
+    setActiveRepo(null);
+    setIdea(null);
+    setIdeaError(null);
+    setIdeaLoading(false);
+    setCopied(false);
   };
 
   const handleCombine = () => {
@@ -199,6 +238,15 @@ export default function HomePage() {
 
   const isTrending = sourceMode === "trending";
   const copy = HERO_COPY[sourceMode];
+  const reducedMotion = useReducedMotion();
+  const contentMotion = reducedMotion
+    ? { initial: false, animate: { opacity: 1 }, exit: { opacity: 1 } }
+    : {
+        initial: { opacity: 0, y: 10 },
+        animate: { opacity: 1, y: 0 },
+        exit: { opacity: 0, y: -6 },
+        transition: sourceModeContentTransition,
+      };
 
   return (
     <div className="min-h-screen bg-cool-mist">
@@ -209,33 +257,49 @@ export default function HomePage() {
         <section className="flex flex-col items-center pt-[var(--spacing-64)] text-center">
           <SourceModeTabs mode={sourceMode} onModeChange={setSourceMode} />
 
-          <p className="type-eyebrow mt-[var(--spacing-32)]">
-            GitHub → micro-SaaS ideas
-          </p>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={sourceMode}
+              className="flex w-full flex-col items-center"
+              {...contentMotion}
+            >
+              <p className="type-eyebrow mt-[var(--spacing-32)]">
+                GitHub → useful tool ideas
+              </p>
 
-          <h1 className="type-display mt-[var(--spacing-16)] max-w-4xl text-midnight-ink">
-            {copy.title}
-          </h1>
+              <h1 className="type-display mt-[var(--spacing-16)] max-w-4xl text-midnight-ink">
+                {copy.title}
+              </h1>
 
-          <p className="mt-[var(--element-gap)] max-w-2xl type-subheading text-charcoal-whisper">
-            {copy.subtitle}
-          </p>
+              <p className="mt-[var(--element-gap)] max-w-2xl type-subheading text-charcoal-whisper">
+                {copy.subtitle}
+              </p>
 
-          {!isTrending && (
-            <div className="mt-[var(--spacing-32)] flex w-full flex-col items-center">
-              <PasteRepoForm
-                value={githubUrl}
-                onChange={setGithubUrl}
-                onSubmit={handleGithubUrlSubmit}
-                isSubmitting={fetchLoading}
-              />
-            </div>
-          )}
+              {!isTrending && (
+                <div className="mt-[var(--spacing-32)] flex w-full flex-col items-center">
+                  <PasteRepoForm
+                    value={githubUrl}
+                    onChange={setGithubUrl}
+                    onSubmit={handleGithubUrlSubmit}
+                    isSubmitting={fetchLoading}
+                  />
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
         </section>
 
         {/* ── Trending grid (only in trending mode) ── */}
-        {isTrending && (
-          <section className="mt-[var(--spacing-32)]">
+        <AnimatePresence initial={false}>
+          {isTrending && (
+          <motion.section
+            key="trending-grid"
+            className="mt-[var(--spacing-32)]"
+            initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reducedMotion ? undefined : { opacity: 0, y: -8 }}
+            transition={sourceModeContentTransition}
+          >
             <div className="mb-[var(--spacing-24)]">
               <TrendingControls
                 search={search}
@@ -249,7 +313,7 @@ export default function HomePage() {
 
             {combineMode && (
               <p className="mb-[var(--spacing-24)] text-center type-body-sm text-invoice-blue">
-                Select two repos to combine into a hybrid idea
+                Select two repos to mix into one tool idea with extra utility from both
               </p>
             )}
 
@@ -271,7 +335,11 @@ export default function HomePage() {
                       index={index}
                       active={!combineMode && isRepoActive(repo)}
                       selected={combineMode && isRepoSelected(repo)}
-                      onClick={() => handleRepoClick(repo)}
+                      flowSource={
+                        flowCard?.repo.author === repo.author &&
+                        flowCard?.repo.name === repo.name
+                      }
+                      onClick={(rect) => handleRepoClick(repo, index, rect)}
                     />
                   ))}
             </div>
@@ -283,8 +351,9 @@ export default function HomePage() {
                   : "No trending repositories found for this filter."}
               </p>
             )}
-          </section>
-        )}
+          </motion.section>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* ── Footer CTA ── */}
@@ -292,7 +361,7 @@ export default function HomePage() {
         <div className="page-container">
           <p className="type-eyebrow">Build faster</p>
           <h2 className="type-heading-lg mt-[var(--spacing-16)] text-midnight-ink">
-            Get fresh micro-SaaS ideas weekly
+            Get fresh tool ideas from trending repos
           </h2>
           <p className="mx-auto mt-[var(--spacing-16)] max-w-xl type-subheading text-charcoal-whisper">
             Pick a trending repo, regenerate until it clicks, then copy the
@@ -314,7 +383,7 @@ export default function HomePage() {
       {isTrending && combineMode && selected.length === 2 && (
         <div className="fixed bottom-[var(--spacing-32)] left-1/2 z-40 -translate-x-1/2">
           <Button className="shadow-[var(--shadow-subtle-2)]" onClick={handleCombine}>
-            Combine these 2
+            Mix these 2
           </Button>
         </div>
       )}
@@ -330,6 +399,23 @@ export default function HomePage() {
         repoLabel={fetchRepoLabel}
         onRetry={handleGithubUrlSubmit}
       />
+
+      {flowCard && (
+        <CardIdeaFlow
+          repo={flowCard.repo}
+          cardIndex={flowCard.index}
+          originRect={flowCard.rect}
+          open={flowMounted}
+          onOpenChange={handleFlowOpenChange}
+          onExitComplete={handleFlowExitComplete}
+          idea={idea}
+          loading={ideaLoading}
+          error={ideaError}
+          copied={copied}
+          onRegenerate={() => fetchIdea(ideaRepos, ideaMode)}
+          onCopy={handleCopy}
+        />
+      )}
 
       <IdeaModal
         open={modalOpen}

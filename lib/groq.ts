@@ -1,6 +1,6 @@
 import Groq from "groq-sdk";
 import { mockGenerateHybridIdea, mockGenerateIdea } from "./mock-idea";
-import type { MicroSaasIdea, TrendingRepo } from "./types";
+import type { ToolIdea, TrendingRepo } from "./types";
 
 const MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 const USE_MOCK = process.env.USE_MOCK_IDEAS === "true";
@@ -13,14 +13,15 @@ function getGroqClient() {
   return new Groq({ apiKey });
 }
 
-const SYSTEM_PROMPT = `You are a startup strategist who turns open-source GitHub repositories into viable micro-SaaS product ideas.
+const SYSTEM_PROMPT = `You are a practical builder who turns open-source GitHub repositories into useful personal or side-project tool ideas.
 Return ONLY valid JSON with these exact keys:
-productName, tagline, targetAudience, coreProblem, microSaasTwist, mvpFeatures (array of 5 strings), revenueModel, differentiator, goToMarket (array of 3 strings).
-Focus on realistic monetization, a clear wedge vs the OSS project, and an MVP a solo founder could ship in weeks.`;
+toolName, tagline, whoItsFor, problemItSolves, toolConcept, buildFirst (array of 5 strings), extraEnhancements (array of 4 strings), whatMakesYoursUseful.
+Focus on usefulness over monetization — suggest something a developer could realistically build, with concrete extras that go beyond what the upstream project already provides.
+Do NOT suggest pricing, billing, subscriptions, go-to-market tactics, or a "managed SaaS layer" framing.`;
 
-function parseIdea(content: string): MicroSaasIdea {
-  const parsed = JSON.parse(content) as MicroSaasIdea;
-  if (!parsed.productName || !Array.isArray(parsed.mvpFeatures)) {
+function parseIdea(content: string): ToolIdea {
+  const parsed = JSON.parse(content) as ToolIdea;
+  if (!parsed.toolName || !Array.isArray(parsed.buildFirst)) {
     throw new Error("Invalid idea response from LLM");
   }
   return parsed;
@@ -33,7 +34,7 @@ export function isMockIdeasEnabled() {
 export async function generateIdea(
   repo: TrendingRepo,
   readme: string
-): Promise<MicroSaasIdea> {
+): Promise<ToolIdea> {
   if (USE_MOCK) {
     await new Promise((r) => setTimeout(r, 600));
     return mockGenerateIdea(repo);
@@ -68,7 +69,7 @@ export async function generateHybridIdea(
   readmeA: string,
   repoB: TrendingRepo,
   readmeB: string
-): Promise<MicroSaasIdea> {
+): Promise<ToolIdea> {
   if (USE_MOCK) {
     await new Promise((r) => setTimeout(r, 800));
     return mockGenerateHybridIdea(repoA, repoB);
@@ -82,7 +83,7 @@ export async function generateHybridIdea(
       {
         role: "system",
         content: `${SYSTEM_PROMPT}
-You are combining TWO trending repositories into one hybrid micro-SaaS concept that fuses their strengths.`,
+You are combining TWO trending repositories into one useful tool idea that borrows the best parts of each. Suggest extras that neither repo provides alone.`,
       },
       {
         role: "user",

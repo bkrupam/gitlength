@@ -11,14 +11,13 @@ export interface TrendingRepo {
   starsToday: number;
 }
 
-export interface MicroSaasIdea {
-  productName: string;
+export interface ToolIdea {
+  toolName: string;
   tagline: string;
-  targetAudience: string;
-  coreProblem: string;
-  microSaasTwist: string;
-  mvpFeatures: string[];
-  revenueModel: string;
-  differentiator: string;
-  goToMarket: string[];
+  whoItsFor: string;
+  problemItSolves: string;
+  toolConcept: string;
+  buildFirst: string[];
+  extraEnhancements: string[];
+  whatMakesYoursUseful: string;
 }
