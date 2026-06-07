@@ -18,6 +18,7 @@ Before producing any UI code, restyling work, or visual change in this repo, app
 - primary CTA fill: `#0d111b` → `--color-onyx-button`
 - decorative avatars: `#f200ca` → `--color-magenta-tile`, `#6d56fc` → `--color-iris-glow`
 - pastel washes (mockup backdrops only): `--color-wash-sky`, `--color-wash-lilac`, `--color-wash-petal`
+- repo card surfaces (tune separately): `--color-card-sky|lilac|petal` + matching `-ink`, `-muted`, `-body` tokens in `app/globals.css`
 
 ## Typography
 - Font: Open Runde via Inter substitute (`--font-open-runde`), weights 400/500/600

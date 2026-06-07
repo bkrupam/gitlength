@@ -28,7 +28,8 @@ export function PasteRepoForm({
         <span className="sr-only">GitHub repository URL</span>
         <div className="flex items-center gap-[var(--spacing-12)] rounded-[var(--radius-buttons)] bg-paper-white px-6 py-[14px] shadow-[var(--shadow-subtle)]">
           <Link2
-            className="h-[18px] w-[18px] shrink-0 text-graphite-mute"
+            className="icon-control text-graphite-mute"
+            strokeWidth={2}
             aria-hidden
           />
           <input
@@ -43,9 +44,9 @@ export function PasteRepoForm({
       </label>
       <Button type="submit" disabled={isSubmitting || !value.trim()}>
         {isSubmitting ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="animate-spin" strokeWidth={2} />
         ) : (
-          "Cook idea"
+          "Get tool idea"
         )}
       </Button>
     </form>

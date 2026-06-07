@@ -1,7 +1,7 @@
-import type { MicroSaasIdea, TrendingRepo } from "./types";
+import type { ToolIdea, TrendingRepo } from "./types";
 
 export function ideaToMarkdown(
-  idea: MicroSaasIdea,
+  idea: ToolIdea,
   repos: TrendingRepo[],
   mode: "single" | "hybrid"
 ): string {
@@ -10,31 +10,28 @@ export function ideaToMarkdown(
       ? `**Sources:** ${repos.map((r) => `${r.author}/${r.name}`).join(" + ")}`
       : `**Source:** ${repos[0].author}/${repos[0].name}`;
 
-  return `# ${idea.productName}
+  return `# ${idea.toolName}
 
 > ${idea.tagline}
 
 ${source}
 
-## Target Audience
-${idea.targetAudience}
+## Who It's For
+${idea.whoItsFor}
 
-## Core Problem
-${idea.coreProblem}
+## Problem It Solves
+${idea.problemItSolves}
 
-## Micro-SaaS Twist
-${idea.microSaasTwist}
+## Your Tool Concept
+${idea.toolConcept}
 
-## MVP Features
-${idea.mvpFeatures.map((f) => `- ${f}`).join("\n")}
+## What to Build First
+${idea.buildFirst.map((f) => `- ${f}`).join("\n")}
 
-## Revenue Model
-${idea.revenueModel}
+## Extra Enhancements
+${idea.extraEnhancements.map((e) => `- ${e}`).join("\n")}
 
-## Differentiator
-${idea.differentiator}
-
-## Go-to-Market
-${idea.goToMarket.map((c) => `- ${c}`).join("\n")}
+## What Makes Yours Useful
+${idea.whatMakesYoursUseful}
 `;
 }

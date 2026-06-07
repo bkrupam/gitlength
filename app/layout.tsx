@@ -15,9 +15,9 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "Gitlength — Trending to Micro-SaaS Ideas",
+  title: "Gitlength — Trending Repos to Tool Ideas",
   description:
-    "Browse GitHub trending repositories and generate micro-SaaS ideas powered by Groq.",
+    "Browse GitHub trending repositories and get ideas for useful tools you could build — plus extras worth adding.",
 };
 
 export default function RootLayout({

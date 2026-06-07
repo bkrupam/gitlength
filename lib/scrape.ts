@@ -21,7 +21,7 @@ export async function scrapeTrending(
 
   const response = await fetch(url, {
     headers: {
-      "User-Agent": "Gitlength/1.0 (micro-saas idea generator)",
+      "User-Agent": "Gitlength/1.0 (tool idea generator)",
       Accept: "text/html",
     },
     next: { revalidate: 3600 },

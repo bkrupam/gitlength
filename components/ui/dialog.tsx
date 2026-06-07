@@ -40,8 +40,8 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-[var(--card-padding)] top-[var(--card-padding)] rounded-[var(--radius-tags)] p-1.5 text-graphite-mute hover:bg-cool-mist">
-        <X className="h-4 w-4" />
+      <DialogPrimitive.Close className="absolute right-[var(--card-padding)] top-[var(--card-padding)] flex h-10 w-10 items-center justify-center rounded-[var(--radius-tags)] text-midnight-ink transition-colors hover:bg-cool-mist">
+        <X className="icon-control" strokeWidth={2} aria-hidden />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
@@ -55,7 +55,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col stack-gap px-[var(--card-padding)] pb-[var(--spacing-16)] pt-[var(--card-padding)]",
+      "flex flex-col gap-[var(--spacing-12)] px-[var(--card-padding)] pb-[var(--spacing-20)] pt-[var(--card-padding)] pr-[calc(var(--card-padding)+var(--spacing-40))]",
       className
     )}
     {...props}
@@ -68,7 +68,10 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("type-heading-lg text-midnight-ink", className)}
+    className={cn(
+      "type-heading font-semibold text-midnight-ink",
+      className
+    )}
     {...props}
   />
 ));
@@ -80,7 +83,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("type-subheading text-charcoal-whisper", className)}
+    className={cn("type-body text-charcoal-whisper", className)}
     {...props}
   />
 ));
@@ -92,7 +95,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-wrap items-center justify-end gap-[var(--element-gap)] border-t border-stone-edge bg-paper-white px-[var(--card-padding)] py-[var(--spacing-16)]",
+      "dialog-hairline flex flex-wrap items-center justify-end gap-[var(--element-gap)] bg-paper-white px-[var(--card-padding)] py-[var(--spacing-20)]",
       className
     )}
     {...props}

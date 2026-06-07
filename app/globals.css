@@ -17,6 +17,20 @@
   --color-wash-lilac: #e1e0fc;
   --color-wash-petal: #f6d2f4;
 
+  /* Card colors — repo card surfaces (tune independently from decorative washes) */
+  --color-card-sky: #edf4fa;
+  --color-card-sky-ink: #0a5a8f;
+  --color-card-sky-muted: #5a7f9e;
+  --color-card-sky-body: #3d6a8a;
+  --color-card-lilac: #f0eff8;
+  --color-card-lilac-ink: #4c3fc9;
+  --color-card-lilac-muted: #7a72d4;
+  --color-card-lilac-body: #5f56c8;
+  --color-card-petal: #f8f0f7;
+  --color-card-petal-ink: #9b007c;
+  --color-card-petal-muted: #b85aa5;
+  --color-card-petal-body: #a83d94;
+
   /* Typography */
   --font-open-runde: var(--font-open-runde-loaded), ui-sans-serif, system-ui,
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -45,6 +59,7 @@
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
+  --font-weight-bold: 700;
 
   /* Spacing */
   --spacing-4: 4px;
@@ -67,6 +82,11 @@
   --card-padding: 24px;
   --element-gap: 16px;
   --grid-gap: 24px;
+
+  /* Icon sizes — pair with 14px UI text (inline) or 48px field controls */
+  --icon-inline: 20px;
+  --icon-control: 24px;
+  --icon-display: 32px;
 
   /* Border radius */
   --radius-tags: 1250px;
@@ -153,6 +173,12 @@
     font-weight: var(--font-weight-regular);
   }
 
+  .type-body {
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    font-weight: var(--font-weight-regular);
+  }
+
   .type-body-sm {
     font-size: var(--text-body-sm);
     line-height: var(--leading-body-sm);
@@ -197,6 +223,12 @@
     color: var(--color-midnight-ink);
   }
 
+  .field-control > svg {
+    width: var(--icon-control);
+    height: var(--icon-control);
+    flex-shrink: 0;
+  }
+
   .field-control-input {
     min-width: 0;
     flex: 1;
@@ -209,5 +241,27 @@
   .field-control-input::placeholder {
     color: var(--color-graphite-mute);
     font-weight: var(--font-weight-regular);
+  }
+
+  .dialog-hairline {
+    border-top: 1px solid color-mix(in srgb, var(--color-stone-edge) 35%, transparent);
+  }
+
+  .icon-inline {
+    width: var(--icon-inline);
+    height: var(--icon-inline);
+    flex-shrink: 0;
+  }
+
+  .icon-control {
+    width: var(--icon-control);
+    height: var(--icon-control);
+    flex-shrink: 0;
+  }
+
+  .icon-display {
+    width: var(--icon-display);
+    height: var(--icon-display);
+    flex-shrink: 0;
   }
 }

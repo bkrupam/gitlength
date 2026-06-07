@@ -55,8 +55,8 @@ export function TrendingControls({
         <span className="sr-only">Search trending repositories</span>
         <div className="field-control">
           <Search
-            className="h-5 w-5 shrink-0 text-graphite-mute"
-            strokeWidth={1.75}
+            className="text-graphite-mute"
+            strokeWidth={2}
             aria-hidden
           />
           <input

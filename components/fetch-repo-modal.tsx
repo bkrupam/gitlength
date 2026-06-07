@@ -46,7 +46,7 @@ export function FetchRepoModal({
 
         {loading && !error && (
           <div className="flex justify-center py-[var(--spacing-32)]">
-            <Loader2 className="h-8 w-8 animate-spin text-graphite-mute" />
+            <Loader2 className="icon-display animate-spin text-graphite-mute" strokeWidth={2} />
           </div>
         )}
 

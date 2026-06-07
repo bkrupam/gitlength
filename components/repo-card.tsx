@@ -1,18 +1,28 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { useRef } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { RepoCardFace } from "@/components/repo-card-face";
+import { getCardTheme } from "@/lib/repo-card-themes";
 import { cn } from "@/lib/utils";
 import type { TrendingRepo } from "@/lib/types";
 
-const WASHES = ["bg-wash-sky", "bg-wash-lilac", "bg-wash-petal"] as const;
-const AVATAR_COLORS = ["bg-magenta-tile", "bg-iris-glow"] as const;
+const hoverEase = [0.23, 1, 0.32, 1] as const;
+
+export interface CardRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
 
 interface RepoCardProps {
   repo: TrendingRepo;
   active?: boolean;
   selected?: boolean;
-  onClick?: () => void;
+  onClick?: (rect: CardRect) => void;
   index?: number;
+  flowSource?: boolean;
 }
 
 export function RepoCard({
@@ -21,72 +31,67 @@ export function RepoCard({
   selected = false,
   onClick,
   index = 0,
+  flowSource = false,
 }: RepoCardProps) {
+  const cardRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
   const isHighlighted = active || selected;
-  const washClass = WASHES[index % WASHES.length];
-  const avatarClass = AVATAR_COLORS[index % AVATAR_COLORS.length];
+  const theme = getCardTheme(index);
+  const isInteractive = !flowSource;
 
-  const metaParts = [
-    `${repo.stars.toLocaleString()} stars`,
-    repo.language || null,
-    `${repo.forks.toLocaleString()} forks`,
-  ].filter(Boolean);
+  const handleClick = () => {
+    if (!cardRef.current || !onClick) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    onClick({
+      top: rect.top,
+      left: rect.left,
+      width: rect.width,
+      height: rect.height,
+    });
+  };
 
   return (
-    <button type="button" onClick={onClick} className="w-full text-left">
-      <article
+    <button
+      type="button"
+      onClick={handleClick}
+      className={cn(
+        "w-full rounded-[var(--radius-cards)] text-left",
+        isInteractive &&
+          "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-invoice-blue focus-visible:ring-offset-2"
+      )}
+    >
+      <motion.article
+        ref={cardRef}
+        whileHover={
+          isInteractive && !reducedMotion
+            ? {
+                y: -4,
+                scale: 1.015,
+                transition: { duration: 0.22, ease: hoverEase },
+              }
+            : undefined
+        }
+        whileTap={
+          isInteractive
+            ? {
+                y: 0,
+                scale: 0.985,
+                transition: { duration: 0.12, ease: hoverEase },
+              }
+            : undefined
+        }
         className={cn(
-          "card-surface flex h-full flex-col",
-          isHighlighted && "ring-2 ring-invoice-blue"
+          "flex h-full flex-col rounded-[var(--radius-cards)] shadow-[var(--shadow-subtle)]",
+          theme.bg,
+          isInteractive &&
+            "ring-1 ring-transparent transition-[box-shadow,ring-color] duration-200 ease-out hover:shadow-[0_10px_28px_rgba(0,0,0,0.08)] hover:ring-stone-edge/45",
+          isHighlighted && "ring-2 ring-invoice-blue",
+          flowSource && "pointer-events-none invisible"
         )}
+        style={{ borderRadius: "var(--radius-cards)" }}
       >
-        <div
-          className={cn(
-            "aspect-[16/10] w-full rounded-[var(--radius-images)]",
-            washClass
-          )}
-          aria-hidden
-        />
-
-        <div className="mt-[var(--element-gap)] flex items-center gap-[var(--element-gap)]">
-          <div
-            className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-paper-white",
-              avatarClass
-            )}
-          >
-            <span className="text-body font-semibold">
-              {repo.author.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <h3 className="truncate text-body font-semibold text-midnight-ink">
-            {repo.name}
-          </h3>
-        </div>
-
-        <p className="mt-[var(--element-gap)] type-body-sm text-graphite-mute">
-          {repo.author} · {metaParts.join(" · ")}
-        </p>
-
-        {repo.description && (
-          <p className="mt-[var(--element-gap)] line-clamp-2 flex-1 type-body-sm text-charcoal-whisper">
-            {repo.description}
-          </p>
-        )}
-
-        <div className="mt-[var(--element-gap)] flex items-center justify-between gap-[var(--element-gap)]">
-          {repo.language ? (
-            <Badge>{repo.language}</Badge>
-          ) : (
-            <Badge>Open source</Badge>
-          )}
-          {repo.starsToday > 0 && (
-            <span className="type-body-sm font-medium text-invoice-blue">
-              +{repo.starsToday.toLocaleString()} today
-            </span>
-          )}
-        </div>
-      </article>
+        <RepoCardFace repo={repo} cardIndex={index} />
+      </motion.article>
     </button>
   );
 }

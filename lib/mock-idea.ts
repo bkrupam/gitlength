@@ -1,45 +1,44 @@
-import type { MicroSaasIdea, TrendingRepo } from "./types";
+import type { ToolIdea, TrendingRepo } from "./types";
 
 function buildIdea(
-  productName: string,
+  toolName: string,
   tagline: string,
   repos: TrendingRepo[]
-): MicroSaasIdea {
+): ToolIdea {
   const repoLabel = repos.map((r) => `${r.author}/${r.name}`).join(" + ");
   const description = repos.map((r) => r.description).filter(Boolean).join(" ");
 
   return {
-    productName,
+    toolName,
     tagline,
-    targetAudience:
-      "Indie hackers, solo founders, and small product teams looking to ship a paid tool built on top of open-source momentum.",
-    coreProblem:
-      "Developers spot promising trending repos but struggle to translate README hype into a focused, monetizable product with a clear wedge.",
-    microSaasTwist: `Instead of self-hosting ${repoLabel}, users get a managed workspace with onboarding, billing, and opinionated workflows — inspired by: ${description || "the core capabilities of the source project"}.`,
-    mvpFeatures: [
-      "One-click import from the source repo's setup flow",
-      "Hosted dashboard with usage metrics and team seats",
-      "Stripe-powered subscriptions with a generous free tier",
-      "Email alerts when upstream releases breaking changes",
-      "Exportable product brief and landing page copy",
+    whoItsFor:
+      "Developers who want a focused, personal workflow tool built around what the source project already does well.",
+    problemItSolves:
+      "The upstream project is powerful but general-purpose — you need a narrower tool tuned to your own daily workflow.",
+    toolConcept: `A lightweight personal wrapper around ${repoLabel} that strips away complexity and surfaces only what you actually use — inspired by: ${description || "the core capabilities of the source project"}.`,
+    buildFirst: [
+      "Minimal CLI or dashboard that wraps the repo's core API",
+      "Saved presets for your most common workflows",
+      "Local config file for quick setup without reading the full docs",
+      "One-click shortcuts for the 3 tasks you do most often",
+      "Simple output viewer so results are easy to scan",
     ],
-    revenueModel:
-      "Free for 1 project and 100 events/month. Pro at $19/mo for unlimited projects. Team at $49/mo with 5 seats and priority support.",
-    differentiator:
-      "Ships in days, not months — pre-packaged positioning, pricing, and GTM copy derived from what's already trending on GitHub.",
-    goToMarket: [
-      "Launch on Product Hunt with a 'built on trending OSS' angle",
-      "Post build-in-public threads in dev communities referencing the source repo",
-      "Partner with maintainers for an official hosted tier affiliate link",
+    extraEnhancements: [
+      "Keyboard shortcuts for power-user flows",
+      "History log so you can replay or diff past runs",
+      "Plugin slot for a custom script you write yourself",
+      "Export results to your notes app or clipboard in one tap",
     ],
+    whatMakesYoursUseful:
+      "Opinionated and small — built for your workflow, not every possible use case the upstream project supports.",
   };
 }
 
-export function mockGenerateIdea(repo: TrendingRepo): MicroSaasIdea {
+export function mockGenerateIdea(repo: TrendingRepo): ToolIdea {
   const name = repo.name.replace(/-/g, " ");
   return buildIdea(
-    `${name.charAt(0).toUpperCase()}${name.slice(1)} Cloud`,
-    `The managed micro-SaaS layer for ${repo.author}/${repo.name}`,
+    `${name.charAt(0).toUpperCase()}${name.slice(1)} Kit`,
+    `A personal tool inspired by ${repo.author}/${repo.name}`,
     [repo]
   );
 }
@@ -47,10 +46,10 @@ export function mockGenerateIdea(repo: TrendingRepo): MicroSaasIdea {
 export function mockGenerateHybridIdea(
   repoA: TrendingRepo,
   repoB: TrendingRepo
-): MicroSaasIdea {
+): ToolIdea {
   return buildIdea(
-    "FusionStack",
-    `Combine ${repoA.name} and ${repoB.name} into one revenue-ready product`,
+    "BlendBoard",
+    `Mix ${repoA.name} and ${repoB.name} into one useful tool with extras neither provides alone`,
     [repoA, repoB]
   );
 }
