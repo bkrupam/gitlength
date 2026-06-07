@@ -13,6 +13,7 @@ import { TrendingControls } from "@/components/trending-controls";
 import { CardIdeaFlow } from "@/components/card-idea-flow";
 import { IdeaModal } from "@/components/idea-modal";
 import { NavHeader } from "@/components/nav-header";
+import { SiteFooter } from "@/components/site-footer";
 import { RepoCard, type CardRect } from "@/components/repo-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -356,28 +357,7 @@ export default function HomePage() {
         </AnimatePresence>
       </main>
 
-      {/* ── Footer CTA ── */}
-      <section className="bg-paper-white px-[var(--spacing-24)] py-[var(--spacing-64)] text-center">
-        <div className="page-container">
-          <p className="type-eyebrow">Build faster</p>
-          <h2 className="type-heading-lg mt-[var(--spacing-16)] text-midnight-ink">
-            Get fresh tool ideas from trending repos
-          </h2>
-          <p className="mx-auto mt-[var(--spacing-16)] max-w-xl type-subheading text-charcoal-whisper">
-            Pick a trending repo, regenerate until it clicks, then copy the
-            markdown brief and start building.
-          </p>
-          <Button
-            className="mt-[var(--spacing-32)]"
-            onClick={() => {
-              setSourceMode("trending");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          >
-            Browse trending repos
-          </Button>
-        </div>
-      </section>
+      <SiteFooter />
 
       {/* ── Combine float ── */}
       {isTrending && combineMode && selected.length === 2 && (

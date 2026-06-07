@@ -5,7 +5,7 @@ const README_MAX_CHARS = 6000;
 function githubHeaders(): HeadersInit {
   const headers: HeadersInit = {
     Accept: "application/vnd.github+json",
-    "User-Agent": "Gitlength/1.0",
+    "User-Agent": "Gitcook/1.0",
   };
   const token = process.env.GITHUB_TOKEN;
   if (token) {
