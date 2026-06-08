@@ -1,5 +1,9 @@
 import type { TrendingSince } from "./types";
 
+const DAILY_REFRESH_MS = 30 * 60 * 1000;
+const WEEKLY_REFRESH_MS = 60 * 60 * 1000;
+const MONTHLY_REFRESH_MS = 2 * 60 * 60 * 1000;
+
 /** UTC calendar date — GitHub daily trending resets at midnight UTC. */
 function utcDateKey(): string {
   return new Date().toISOString().slice(0, 10);
@@ -23,15 +27,6 @@ function utcWeekKey(): string {
   return `${d.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
 }
 
-/** Milliseconds until the next UTC midnight. */
-function msUntilUtcMidnight(): number {
-  const now = new Date();
-  const next = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1)
-  );
-  return Math.max(next.getTime() - now.getTime(), 60_000);
-}
-
 /**
  * Cache key includes the trending period so a new GitHub day/week/month
  * automatically misses stale entries and triggers a fresh scrape.
@@ -43,9 +38,9 @@ export function trendingCacheKey(language: string, since: TrendingSince): string
   return `trending:${utcMonthKey()}:${lang}:monthly`;
 }
 
-/** TTL aligned to how often GitHub refreshes each trending window. */
+/** How long to serve a scrape before fetching again. */
 export function trendingCacheTtl(since: TrendingSince): number {
-  if (since === "daily") return msUntilUtcMidnight();
-  if (since === "weekly") return 6 * 60 * 60 * 1000;
-  return 12 * 60 * 60 * 1000;
+  if (since === "daily") return DAILY_REFRESH_MS;
+  if (since === "weekly") return WEEKLY_REFRESH_MS;
+  return MONTHLY_REFRESH_MS;
 }
