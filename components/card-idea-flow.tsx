@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 import type { ToolIdea, TrendingRepo } from "@/lib/types";
 
 const MIN_GENERATING_MS = 2000;
-const LIFT_DURATION = 0.55;
+const APPROACH_DURATION = 0.52;
+const APPROACH_SCALE = 1.18;
 const FLIP_DURATION = 0.45;
 const EXIT_DURATION = 0.38;
 const OVERLAY_EXIT_DURATION = 0.22;
@@ -42,12 +43,10 @@ interface LayoutCustom {
 function getLayoutMetrics(rect: CardRect) {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const centerLeft = (vw - rect.width) / 2;
-  const centerTop = (vh - rect.height) / 2;
   const modalWidth = Math.min(vw - 32, 768);
   const modalHeight = vh * 0.9;
 
-  return { centerLeft, centerTop, modalWidth, modalHeight };
+  return { modalWidth, modalHeight };
 }
 
 const shellVariants = {
@@ -60,15 +59,15 @@ const shellVariants = {
     height: originRect.height,
     scale: 1,
   }),
-  lift: ({ originRect, metrics }: LayoutCustom) => ({
-    left: metrics.centerLeft,
-    top: metrics.centerTop,
-    x: 0,
-    y: 0,
+  lift: ({ originRect }: LayoutCustom) => ({
+    left: "50%",
+    top: "50%",
+    x: "-50%",
+    y: "-50%",
     width: originRect.width,
     height: originRect.height,
-    scale: 1.03,
-    transition: { duration: LIFT_DURATION, ease: liftEase },
+    scale: APPROACH_SCALE,
+    transition: { duration: APPROACH_DURATION, ease: liftEase },
   }),
   modal: ({ metrics }: LayoutCustom) => ({
     left: "50%",
