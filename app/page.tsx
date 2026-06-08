@@ -70,7 +70,9 @@ export default function HomePage() {
     try {
       const params = new URLSearchParams({ since });
       if (language) params.set("language", language);
-      const res = await fetch(`/api/trending?${params.toString()}`);
+      const res = await fetch(`/api/trending?${params.toString()}`, {
+        cache: "no-store",
+      });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data) {
         throw new Error(data?.error || "Failed to load trending repos");
