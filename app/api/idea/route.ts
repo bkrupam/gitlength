@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchReadme } from "@/lib/github";
-import { generateIdea, isMockIdeasEnabled } from "@/lib/groq";
-import type { TrendingRepo } from "@/lib/types";
+import { generateIdea } from "@/lib/groq";
+import type { PriorIdea, TrendingRepo } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
-    if (!isMockIdeasEnabled() && !process.env.GROQ_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
         { error: "GROQ_API_KEY is not configured" },
         { status: 500 }
@@ -22,12 +22,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const readme = isMockIdeasEnabled()
-      ? ""
-      : await fetchReadme(repo.author, repo.name);
-    const idea = await generateIdea(repo, readme);
+    const priorIdeas = (body.priorIdeas as PriorIdea[] | undefined) ?? [];
+    const readme = await fetchReadme(repo.author, repo.name);
+    const idea = await generateIdea(repo, readme, priorIdeas);
 
-    return NextResponse.json({ idea, mock: isMockIdeasEnabled() });
+    return NextResponse.json({ idea });
   } catch (error) {
     console.error("Idea generation error:", error);
     return NextResponse.json(

@@ -1,9 +1,10 @@
 import Groq from "groq-sdk";
-import { mockGenerateHybridIdea, mockGenerateIdea } from "./mock-idea";
-import type { ToolIdea, TrendingRepo } from "./types";
+import { IDEA_SYSTEM_PROMPT, buildIdeaUserMessage } from "./idea-prompt";
+import type { PriorIdea, ToolIdea, TrendingRepo } from "./types";
 
 const MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-const USE_MOCK = process.env.USE_MOCK_IDEAS === "true";
+const TEMPERATURE_INITIAL = 0.95;
+const TEMPERATURE_REGENERATE = 1.05;
 
 function getGroqClient() {
   const apiKey = process.env.GROQ_API_KEY;
@@ -13,48 +14,73 @@ function getGroqClient() {
   return new Groq({ apiKey });
 }
 
-const SYSTEM_PROMPT = `You are a practical builder who turns open-source GitHub repositories into useful personal or side-project tool ideas.
-Return ONLY valid JSON with these exact keys:
-toolName, tagline, whoItsFor, problemItSolves, toolConcept, buildFirst (array of 5 strings), extraEnhancements (array of 4 strings), whatMakesYoursUseful.
-Focus on usefulness over monetization — suggest something a developer could realistically build, with concrete extras that go beyond what the upstream project already provides.
-Do NOT suggest pricing, billing, subscriptions, go-to-market tactics, or a "managed SaaS layer" framing.`;
+function stripJsonFences(content: string): string {
+  const trimmed = content.trim();
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  if (fenced) return fenced[1].trim();
+
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start !== -1 && end > start) {
+    return trimmed.slice(start, end + 1);
+  }
+
+  return trimmed;
+}
 
 function parseIdea(content: string): ToolIdea {
-  const parsed = JSON.parse(content) as ToolIdea;
-  if (!parsed.toolName || !Array.isArray(parsed.buildFirst)) {
+  let parsed: ToolIdea;
+  try {
+    parsed = JSON.parse(stripJsonFences(content)) as ToolIdea;
+  } catch {
     throw new Error("Invalid idea response from LLM");
   }
+
+  const requiredStrings = [
+    "toolName",
+    "tagline",
+    "theBorrowedIdea",
+    "theTwist",
+    "whoItsFor",
+    "problemItSolves",
+    "whyItsCool",
+    "whyNow",
+  ] as const;
+
+  for (const key of requiredStrings) {
+    if (typeof parsed[key] !== "string") {
+      throw new Error("Invalid idea response from LLM");
+    }
+  }
+
+  if (
+    !Array.isArray(parsed.buildSketch) ||
+    parsed.buildSketch.length !== 4 ||
+    !Array.isArray(parsed.stretchIdeas) ||
+    parsed.stretchIdeas.length !== 3
+  ) {
+    throw new Error("Invalid idea response from LLM");
+  }
+
   return parsed;
 }
 
-export function isMockIdeasEnabled() {
-  return USE_MOCK;
-}
-
-export async function generateIdea(
-  repo: TrendingRepo,
-  readme: string
+async function completeIdea(
+  repos: TrendingRepo[],
+  readmes: string[],
+  priorIdeas: PriorIdea[]
 ): Promise<ToolIdea> {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 600));
-    return mockGenerateIdea(repo);
-  }
+  const isRegenerate = priorIdeas.length > 0;
 
   const completion = await getGroqClient().chat.completions.create({
     model: MODEL,
-    temperature: 0.8,
+    temperature: isRegenerate ? TEMPERATURE_REGENERATE : TEMPERATURE_INITIAL,
     response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: IDEA_SYSTEM_PROMPT },
       {
         role: "user",
-        content: `Repository: ${repo.author}/${repo.name}
-URL: ${repo.url}
-Language: ${repo.language || "Unknown"}
-Stars: ${repo.stars}
-Description: ${repo.description || "No description"}
-README excerpt:
-${readme}`,
+        content: buildIdeaUserMessage(repos, readmes, priorIdeas),
       },
     ],
   });
@@ -62,45 +88,22 @@ ${readme}`,
   const content = completion.choices[0]?.message?.content;
   if (!content) throw new Error("Empty response from Groq");
   return parseIdea(content);
+}
+
+export async function generateIdea(
+  repo: TrendingRepo,
+  readme: string,
+  priorIdeas: PriorIdea[] = []
+): Promise<ToolIdea> {
+  return completeIdea([repo], [readme], priorIdeas);
 }
 
 export async function generateHybridIdea(
   repoA: TrendingRepo,
   readmeA: string,
   repoB: TrendingRepo,
-  readmeB: string
+  readmeB: string,
+  priorIdeas: PriorIdea[] = []
 ): Promise<ToolIdea> {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 800));
-    return mockGenerateHybridIdea(repoA, repoB);
-  }
-
-  const completion = await getGroqClient().chat.completions.create({
-    model: MODEL,
-    temperature: 0.9,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "system",
-        content: `${SYSTEM_PROMPT}
-You are combining TWO trending repositories into one useful tool idea that borrows the best parts of each. Suggest extras that neither repo provides alone.`,
-      },
-      {
-        role: "user",
-        content: `Repo A: ${repoA.author}/${repoA.name}
-Description: ${repoA.description}
-README A:
-${readmeA}
-
-Repo B: ${repoB.author}/${repoB.name}
-Description: ${repoB.description}
-README B:
-${readmeB}`,
-      },
-    ],
-  });
-
-  const content = completion.choices[0]?.message?.content;
-  if (!content) throw new Error("Empty response from Groq");
-  return parseIdea(content);
+  return completeIdea([repoA, repoB], [readmeA, readmeB], priorIdeas);
 }

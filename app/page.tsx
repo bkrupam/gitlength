@@ -19,7 +19,12 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ideaToMarkdown } from "@/lib/idea-markdown";
 import { parseGithubUrl } from "@/lib/parse-github-url";
-import type { ToolIdea, TrendingRepo, TrendingSince } from "@/lib/types";
+import type {
+  PriorIdea,
+  ToolIdea,
+  TrendingRepo,
+  TrendingSince,
+} from "@/lib/types";
 
 const HERO_COPY: Record<SourceMode, { title: string; subtitle: string }> = {
   trending: {
@@ -62,6 +67,7 @@ export default function HomePage() {
   const [idea, setIdea] = useState<ToolIdea | null>(null);
   const [ideaRepos, setIdeaRepos] = useState<TrendingRepo[]>([]);
   const [ideaMode, setIdeaMode] = useState<"single" | "hybrid">("single");
+  const [ideaHistory, setIdeaHistory] = useState<PriorIdea[]>([]);
   const [copied, setCopied] = useState(false);
 
   const fetchTrending = useCallback(async () => {
@@ -106,21 +112,34 @@ export default function HomePage() {
   }, [repos, search]);
 
   const fetchIdea = useCallback(
-    async (targetRepos: TrendingRepo[], mode: "single" | "hybrid") => {
+    async (
+      targetRepos: TrendingRepo[],
+      mode: "single" | "hybrid",
+      options?: { regenerate?: boolean }
+    ) => {
+      const isRegenerate = options?.regenerate ?? false;
+
       setIdeaLoading(true);
       setIdeaError(null);
       setIdea(null);
       setIdeaRepos(targetRepos);
       setIdeaMode(mode);
       setCopied(false);
+      if (!isRegenerate) setIdeaHistory([]);
       if (mode === "single") setActiveRepo(targetRepos[0]);
 
       try {
         const endpoint = mode === "hybrid" ? "/api/combine" : "/api/idea";
+        const priorIdeas = isRegenerate ? ideaHistory : [];
         const body =
           mode === "hybrid"
-            ? { repoA: targetRepos[0], repoB: targetRepos[1] }
-            : { repo: targetRepos[0] };
+            ? {
+                repoA: targetRepos[0],
+                repoB: targetRepos[1],
+                priorIdeas,
+              }
+            : { repo: targetRepos[0], priorIdeas };
+
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -130,14 +149,22 @@ export default function HomePage() {
         if (!res.ok || !data) {
           throw new Error(data?.error || "Failed to generate idea");
         }
+
+        const nextPrior: PriorIdea = {
+          toolName: data.idea.toolName,
+          theBorrowedIdea: data.idea.theBorrowedIdea,
+        };
         setIdea(data.idea);
+        setIdeaHistory((prev) =>
+          isRegenerate ? [...prev, nextPrior] : [nextPrior]
+        );
       } catch (err) {
         setIdeaError(err instanceof Error ? err.message : "Failed to generate idea");
       } finally {
         setIdeaLoading(false);
       }
     },
-    []
+    [ideaHistory]
   );
 
   const generateIdea = useCallback(
@@ -218,6 +245,7 @@ export default function HomePage() {
     setIdea(null);
     setIdeaError(null);
     setIdeaLoading(false);
+    setIdeaHistory([]);
     setCopied(false);
   };
 
@@ -394,7 +422,9 @@ export default function HomePage() {
           loading={ideaLoading}
           error={ideaError}
           copied={copied}
-          onRegenerate={() => fetchIdea(ideaRepos, ideaMode)}
+          onRegenerate={() =>
+            fetchIdea(ideaRepos, ideaMode, { regenerate: true })
+          }
           onCopy={handleCopy}
         />
       )}
@@ -408,7 +438,9 @@ export default function HomePage() {
         loading={ideaLoading}
         error={ideaError}
         copied={copied}
-        onRegenerate={() => generateIdea(ideaRepos, ideaMode)}
+        onRegenerate={() =>
+          fetchIdea(ideaRepos, ideaMode, { regenerate: true })
+        }
         onCopy={handleCopy}
       />
     </div>

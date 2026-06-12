@@ -1,4 +1,4 @@
-const GITHUB_REPO = "https://github.com/bkrupam/gitlength";
+const GITHUB_REPO = "https://github.com/bkrupam/gitcook";
 const GITHUB_USER = "https://github.com/bkrupam";
 const GITHUB_CONTRIBUTE = `${GITHUB_REPO}/blob/main/CONTRIBUTING.md`;
 const GITHUB_STARS = `${GITHUB_REPO}/stargazers`;

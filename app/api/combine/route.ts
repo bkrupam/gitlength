@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchReadme } from "@/lib/github";
-import { generateHybridIdea, isMockIdeasEnabled } from "@/lib/groq";
-import type { TrendingRepo } from "@/lib/types";
+import { generateHybridIdea } from "@/lib/groq";
+import type { PriorIdea, TrendingRepo } from "@/lib/types";
 
 export async function POST(request: NextRequest) {
   try {
-    if (!isMockIdeasEnabled() && !process.env.GROQ_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
         { error: "GROQ_API_KEY is not configured" },
         { status: 500 }
@@ -23,18 +23,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let readmeA = "";
-    let readmeB = "";
-    if (!isMockIdeasEnabled()) {
-      [readmeA, readmeB] = await Promise.all([
-        fetchReadme(repoA.author, repoA.name),
-        fetchReadme(repoB.author, repoB.name),
-      ]);
-    }
+    const priorIdeas = (body.priorIdeas as PriorIdea[] | undefined) ?? [];
 
-    const idea = await generateHybridIdea(repoA, readmeA, repoB, readmeB);
+    const [readmeA, readmeB] = await Promise.all([
+      fetchReadme(repoA.author, repoA.name),
+      fetchReadme(repoB.author, repoB.name),
+    ]);
 
-    return NextResponse.json({ idea, mock: isMockIdeasEnabled() });
+    const idea = await generateHybridIdea(
+      repoA,
+      readmeA,
+      repoB,
+      readmeB,
+      priorIdeas
+    );
+
+    return NextResponse.json({ idea });
   } catch (error) {
     console.error("Combine idea error:", error);
     return NextResponse.json(

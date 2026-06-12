@@ -16,22 +16,28 @@ export function ideaToMarkdown(
 
 ${source}
 
+## The Borrowed Idea
+${idea.theBorrowedIdea}
+
+## The Twist
+${idea.theTwist}
+
 ## Who It's For
 ${idea.whoItsFor}
 
 ## Problem It Solves
 ${idea.problemItSolves}
 
-## Your Tool Concept
-${idea.toolConcept}
+## Why It's Cool
+${idea.whyItsCool}
 
-## What to Build First
-${idea.buildFirst.map((f) => `- ${f}`).join("\n")}
+## Why Now
+${idea.whyNow}
 
-## Extra Enhancements
-${idea.extraEnhancements.map((e) => `- ${e}`).join("\n")}
+## Build Sketch
+${idea.buildSketch.map((step) => `- ${step}`).join("\n")}
 
-## What Makes Yours Useful
-${idea.whatMakesYoursUseful}
+## Stretch Ideas
+${idea.stretchIdeas.map((step) => `- ${step}`).join("\n")}
 `;
 }
