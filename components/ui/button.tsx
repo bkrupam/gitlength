@@ -11,7 +11,7 @@ const buttonVariants = cva(
         default:
           "bg-onyx-button text-paper-white type-body-sm rounded-[var(--radius-buttons)] px-6 py-[13px] font-medium shadow-[var(--shadow-subtle-2)] hover:bg-tinted-shadow",
         ghost:
-          "bg-transparent text-midnight-ink type-body-sm rounded-[var(--radius-buttons)] px-4 py-2 font-medium hover:text-charcoal-whisper",
+          "bg-transparent text-midnight-ink type-body-sm rounded-[var(--radius-buttons)] px-4 py-2 font-medium hover:bg-cool-mist hover:text-midnight-ink active:bg-cool-mist/80",
       },
       size: {
         default: "min-h-[44px] px-6 py-[13px]",

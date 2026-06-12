@@ -14,10 +14,18 @@ export interface TrendingRepo {
 export interface ToolIdea {
   toolName: string;
   tagline: string;
+  theBorrowedIdea: string;
+  theTwist: string;
   whoItsFor: string;
   problemItSolves: string;
-  toolConcept: string;
-  buildFirst: string[];
-  extraEnhancements: string[];
-  whatMakesYoursUseful: string;
+  whyItsCool: string;
+  whyNow: string;
+  buildSketch: string[];
+  stretchIdeas: string[];
+}
+
+/** Shown ideas passed back on regenerate to avoid repeats. */
+export interface PriorIdea {
+  toolName: string;
+  theBorrowedIdea: string;
 }

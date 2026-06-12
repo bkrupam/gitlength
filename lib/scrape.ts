@@ -23,8 +23,9 @@ export async function scrapeTrending(
     headers: {
       "User-Agent": "Gitcook/1.0 (tool idea generator)",
       Accept: "text/html",
+      "Cache-Control": "no-cache",
     },
-    next: { revalidate: 3600 },
+    cache: "no-store",
   });
 
   if (!response.ok) {
@@ -35,7 +36,11 @@ export async function scrapeTrending(
   const $ = cheerio.load(html);
   const repos: TrendingRepo[] = [];
 
-  $("article.Box-row").each((_, element) => {
+  // Primary selector; GitHub occasionally changes markup.
+  const rows = $("article.Box-row");
+  const selector = rows.length > 0 ? rows : $("div.Box-row");
+
+  selector.each((_, element) => {
     const row = $(element);
     const link = row.find("h2 a").first();
     const href = link.attr("href")?.trim() ?? "";
@@ -78,6 +83,10 @@ export async function scrapeTrending(
       starsToday,
     });
   });
+
+  if (repos.length === 0) {
+    throw new Error("GitHub trending page returned no repositories");
+  }
 
   return repos;
 }

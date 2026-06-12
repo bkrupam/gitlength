@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-
-export const dynamic = "force-dynamic";
-import { getCached, setCached } from "@/lib/cache";
+import { getCached, getCachedMeta, getCachedStale, setCached } from "@/lib/cache";
 import { scrapeTrending } from "@/lib/scrape";
+import { trendingCacheKey, trendingCacheTtl } from "@/lib/trending-cache";
 import type { TrendingSince } from "@/lib/types";
 
-const CACHE_TTL_MS = 60 * 60 * 1000;
+export const dynamic = "force-dynamic";
+
+const NO_CACHE_HEADERS = {
+  "Cache-Control": "no-store, max-age=0",
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,25 +19,68 @@ export async function GET(request: NextRequest) {
     if (!["daily", "weekly", "monthly"].includes(since)) {
       return NextResponse.json(
         { error: "Invalid since parameter" },
-        { status: 400 }
+        { status: 400, headers: NO_CACHE_HEADERS }
       );
     }
 
-    const cacheKey = `trending:${language}:${since}`;
-    const cached = getCached<Awaited<ReturnType<typeof scrapeTrending>>>(cacheKey);
-    if (cached) {
-      return NextResponse.json({ repos: cached, cached: true });
+    const cacheKey = trendingCacheKey(language, since);
+    const ttlMs = trendingCacheTtl(since);
+
+    const fresh = getCached<Awaited<ReturnType<typeof scrapeTrending>>>(cacheKey);
+    if (fresh) {
+      const meta = getCachedMeta(cacheKey);
+      return NextResponse.json(
+        {
+          repos: fresh,
+          cached: true,
+          stale: false,
+          fetchedAt: meta?.fetchedAt ?? Date.now(),
+        },
+        { headers: NO_CACHE_HEADERS }
+      );
     }
 
-    const repos = await scrapeTrending(language, since);
-    setCached(cacheKey, repos, CACHE_TTL_MS);
+    try {
+      const repos = await scrapeTrending(language, since);
+      setCached(cacheKey, repos, ttlMs);
 
-    return NextResponse.json({ repos, cached: false });
+      return NextResponse.json(
+        {
+          repos,
+          cached: false,
+          stale: false,
+          fetchedAt: Date.now(),
+        },
+        { headers: NO_CACHE_HEADERS }
+      );
+    } catch (scrapeError) {
+      console.error("Trending scrape error:", scrapeError);
+
+      const fallback = getCachedStale<
+        Awaited<ReturnType<typeof scrapeTrending>>
+      >(cacheKey);
+      if (fallback) {
+        console.warn(
+          `Serving stale trending cache for ${cacheKey} after scrape failure`
+        );
+        return NextResponse.json(
+          {
+            repos: fallback.value,
+            cached: true,
+            stale: true,
+            fetchedAt: fallback.fetchedAt,
+          },
+          { headers: NO_CACHE_HEADERS }
+        );
+      }
+
+      throw scrapeError;
+    }
   } catch (error) {
-    console.error("Trending scrape error:", error);
+    console.error("Trending API error:", error);
     return NextResponse.json(
       { error: "Failed to fetch trending repositories" },
-      { status: 500 }
+      { status: 500, headers: NO_CACHE_HEADERS }
     );
   }
 }

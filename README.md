@@ -1,6 +1,8 @@
-# Gitlength
+# Gitcook
 
 Browse GitHub trending repositories and get ideas for useful tools you could build — plus extras worth adding.
+
+Open source: [github.com/bkrupam/gitcook](https://github.com/bkrupam/gitcook)
 
 ## Features
 
@@ -27,13 +29,10 @@ cp .env.local.example .env.local
 Set:
 
 ```env
-USE_MOCK_IDEAS=true
 GROQ_API_KEY=your_groq_api_key
 GROQ_MODEL=llama-3.3-70b-versatile
 GITHUB_TOKEN=optional_github_token_for_higher_rate_limits
 ```
-
-Set `USE_MOCK_IDEAS=false` when you want real Groq-generated ideas.
 
 3. Run the dev server:
 

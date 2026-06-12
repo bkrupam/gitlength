@@ -33,6 +33,7 @@ function SectionBody({ children }: { children: ReactNode }) {
 }
 
 function Section({ label, value }: { label: string; value: string }) {
+  if (!value) return null;
   return (
     <section className="flex flex-col gap-[var(--spacing-8)]">
       <SectionHeading>{label}</SectionHeading>
@@ -112,10 +113,10 @@ export function IdeaPanel({
         {loading ? (
           <>
             <h2 className="type-heading font-semibold text-midnight-ink">
-              Generating your idea…
+              Cooking up an idea…
             </h2>
             <p className="type-body text-charcoal-whisper">
-              Reading the README and sketching a tool concept.
+              Reading what we can from the repo and looking for the mechanism worth stealing.
             </p>
           </>
         ) : error ? (
@@ -170,21 +171,22 @@ export function IdeaPanel({
 
         {!loading && idea && (
           <div className="flex flex-col gap-[var(--spacing-32)]">
+            <Section label="The borrowed idea" value={idea.theBorrowedIdea} />
+            <Section label="The twist" value={idea.theTwist} />
             <Section label="Who it's for" value={idea.whoItsFor} />
             <Section label="Problem it solves" value={idea.problemItSolves} />
-            <Section label="Your tool concept" value={idea.toolConcept} />
+            <Section label="Why it's cool" value={idea.whyItsCool} />
+            <Section label="Why now" value={idea.whyNow} />
 
             <section className="flex flex-col gap-[var(--spacing-12)]">
-              <SectionHeading>What to build first</SectionHeading>
-              <BulletList items={idea.buildFirst} />
+              <SectionHeading>Build sketch</SectionHeading>
+              <BulletList items={idea.buildSketch} />
             </section>
 
             <section className="flex flex-col gap-[var(--spacing-12)]">
-              <SectionHeading>Extra enhancements</SectionHeading>
-              <BulletList items={idea.extraEnhancements} />
+              <SectionHeading>Stretch ideas</SectionHeading>
+              <BulletList items={idea.stretchIdeas} />
             </section>
-
-            <Section label="What makes yours useful" value={idea.whatMakesYoursUseful} />
           </div>
         )}
       </div>
